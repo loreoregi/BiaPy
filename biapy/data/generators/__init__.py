@@ -199,6 +199,7 @@ def create_train_val_augmentors(
     # augmentation is rolled independently against its own probability (there is no global DA_PROB).
     aug_prob = {
         "zoom": cfg.AUGMENTOR.ZOOM_PROB,
+        "random_resized_crop": cfg.AUGMENTOR.RANDOM_RESIZED_CROP_PROB,
         "rand_rot": cfg.AUGMENTOR.RANDOM_ROT_PROB,
         "rotation90": cfg.AUGMENTOR.ROT90_PROB,
         "shear": cfg.AUGMENTOR.SHEAR_PROB,
@@ -295,6 +296,9 @@ def create_train_val_augmentors(
             zoom=cfg.AUGMENTOR.ZOOM,
             zoom_range=cfg.AUGMENTOR.ZOOM_RANGE,
             zoom_in_z=cfg.AUGMENTOR.ZOOM_IN_Z,
+            random_resized_crop=cfg.AUGMENTOR.RANDOM_RESIZED_CROP,
+            random_resized_crop_scale_range=cfg.AUGMENTOR.RANDOM_RESIZED_CROP_SCALE_RANGE,
+            is_y_mask=cfg.PROBLEM.TYPE not in ("IMAGE_TO_IMAGE", "DENOISING", "SUPER_RESOLUTION", "SELF_SUPERVISED"),
             shift=cfg.AUGMENTOR.SHIFT,
             affine_mode=cfg.AUGMENTOR.AFFINE_MODE,
             shift_range=cfg.AUGMENTOR.SHIFT_RANGE,
@@ -440,6 +444,7 @@ def create_train_val_augmentors(
             norm_module=norm_module,
             resolution=cfg.DATA.VAL.RESOLUTION,
             random_crop_scale=cfg.PROBLEM.SUPER_RESOLUTION.UPSCALING,
+            is_y_mask=cfg.PROBLEM.TYPE not in ("IMAGE_TO_IMAGE", "DENOISING", "SUPER_RESOLUTION", "SELF_SUPERVISED"),
             preprocess_f=preprocess_data if cfg.DATA.PREPROCESS.VAL else None,
             preprocess_cfg=cfg.DATA.PREPROCESS if cfg.DATA.PREPROCESS.VAL else None,
         )
@@ -697,6 +702,9 @@ def create_test_generator(
             dic["channel_extra_opts"] = _extra_opts
         dic["ignore_index"] = cfg.LOSS.IGNORE_INDEX
         dic["n_classes"] = cfg.DATA.N_CLASSES
+        # Y is a continuous regression target in these workflows, not a categorical mask -- resizing
+        # it should use the same interpolation as X, not nearest-neighbor.
+        dic["is_y_mask"] = cfg.PROBLEM.TYPE not in ("IMAGE_TO_IMAGE", "DENOISING", "SUPER_RESOLUTION", "SELF_SUPERVISED")
     
     test_generator = gen_name(**dic)
 
