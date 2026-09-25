@@ -2653,6 +2653,7 @@ def check_configuration(cfg, jobname, check_data_paths=True):
                 "hrnet",
                 "stunet",
                 "nafnet",
+                "wavelettention",
             ]
             and cfg.PROBLEM.NDIM == "3D"
             and cfg.PROBLEM.TYPE != "CLASSIFICATION"
@@ -2677,6 +2678,7 @@ def check_configuration(cfg, jobname, check_data_paths=True):
                         "hrnet",
                         "stunet",
                         "nafnet",
+                        "wavelettention",
                     ]
                 )
             )
@@ -3051,8 +3053,6 @@ def check_configuration(cfg, jobname, check_data_paths=True):
             # Not allowed archs
             if cfg.PROBLEM.NDIM == "3D" and model_arch == "wdsr":
                 raise ValueError("'wdsr' architecture is not available for 3D 'SUPER_RESOLUTION'")
-            if cfg.PROBLEM.NDIM == "3D" and model_arch == "wavelettention":
-                raise ValueError("'wavelettention' architecture is not available for 3D 'SUPER_RESOLUTION'")
             assert cfg.MODEL.UNET_SR_UPSAMPLE_POSITION in [
                 "pre",
                 "post",
